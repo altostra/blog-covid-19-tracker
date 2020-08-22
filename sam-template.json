@@ -1,0 +1,107 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Transform": "AWS::Serverless-2016-10-31",
+	"Resources": {
+		"CovidData01": {
+			"Type": "AWS::Serverless::SimpleTable",
+			"Properties": {
+				"PrimaryKey": {
+					"Name": "pk",
+					"Type": "String"
+				},
+				"ProvisionedThroughput": {
+					"ReadCapacityUnits": 1,
+					"WriteCapacityUnits": 1
+				}
+			}
+		},
+		"DataPollSchedule01": {
+			"Type": "AWS::Events::Rule",
+			"Properties": {
+				"State": "ENABLED",
+				"ScheduleExpression": "rate(1 day)",
+				"Targets": [
+					{
+						"Arn": {
+							"Fn::GetAtt": [
+								"ProcessCovidData01",
+								"Arn"
+							]
+						},
+						"Id": "cke5w5vxb000008kw7ykv6mkf"
+					}
+				]
+			}
+		},
+		"Notifications01": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+				"TopicName": "notifications",
+				"DisplayName": "notifications"
+			}
+		},
+		"ProcessCovidData01": {
+			"Type": "AWS::Serverless::Function",
+			"Properties": {
+				"CodeUri": "./",
+				"Handler": "functions/processCovidData.handler",
+				"Runtime": "nodejs12.x",
+				"MemorySize": 512,
+				"Timeout": 6,
+				"ReservedConcurrentExecutions": 1,
+				"Environment": {
+					"Variables": {
+						"API_URL": "https://api.apify.com/v2/key-value-stores/tVaYRsPHLjNdNBu7S/records/LATEST?disableRedirect=true",
+						"COUNTRY": "United States",
+						"NOTIFY_WHEN_OVER": "1000",
+						"TABLE_COVIDDATA01": {
+							"Ref": "CovidData01"
+						},
+						"TOPIC_NOTIFICATIONS01": {
+							"Ref": "Notifications01"
+						}
+					}
+				},
+				"Layers": [],
+				"Policies": [
+					{
+						"DynamoDBCrudPolicy": {
+							"TableName": {
+								"Ref": "CovidData01"
+							}
+						}
+					},
+					{
+						"SNSPublishMessagePolicy": {
+							"TopicName": {
+								"Fn::GetAtt": [
+									"Notifications01",
+									"TopicName"
+								]
+							}
+						}
+					}
+				]
+			}
+		},
+		"cke5w5vxc000108kw2bo2dq04": {
+			"Type": "AWS::Lambda::Permission",
+			"Properties": {
+				"Action": "lambda:InvokeFunction",
+				"Principal": "events.amazonaws.com",
+				"SourceArn": {
+					"Fn::GetAtt": [
+						"DataPollSchedule01",
+						"Arn"
+					]
+				},
+				"FunctionName": {
+					"Fn::GetAtt": [
+						"ProcessCovidData01",
+						"Arn"
+					]
+				}
+			}
+		}
+	}
+}

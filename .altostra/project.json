@@ -1,20 +1,110 @@
 {
-  "id": "cke2s9z870000hxmp850f1m93",
-  "name": "covid19-tracker",
-  "description": "An empty project template",
-  "created": "2020-08-20T12:31:01.783Z",
-  "blueprints": [
-    {
-      "version": "2019-10-24",
-      "connections": {},
-      "resources": {},
-      "metadata": {
-        "designer": {
-          "resourcePositions": {}
-        }
-      },
-      "id": "cke2s9z870000hxmp850f1m93",
-      "name": "covid19-tracker"
-    }
-  ]
+	"id": "covid19-tracker-gr00ql1",
+	"name": "covid19-tracker",
+	"description": "An empty project template",
+	"created": "2020-08-20T12:31:01.783Z",
+	"blueprints": [
+		{
+			"connections": {
+				"DataPollSchedule01": {
+					"ProcessCovidData01": {
+						"from": "DataPollSchedule01",
+						"to": "ProcessCovidData01",
+						"type": "connection.trigger"
+					}
+				},
+				"ProcessCovidData01": {
+					"CovidData01": {
+						"accessLevel": "read-write",
+						"from": "ProcessCovidData01",
+						"to": "CovidData01",
+						"type": "connection.resource-access"
+					},
+					"Notifications01": {
+						"accessLevel": "write-only",
+						"from": "ProcessCovidData01",
+						"to": "Notifications01",
+						"type": "connection.resource-access"
+					}
+				}
+			},
+			"id": "cke2s9z870000hxmp850f1m93",
+			"metadata": {
+				"designer": {
+					"resourcePositions": {
+						"CovidData01": {
+							"x": 623,
+							"y": 259,
+							"z": 0
+						},
+						"DataPollSchedule01": {
+							"x": 32,
+							"y": 157,
+							"z": 0
+						},
+						"Notifications01": {
+							"x": 623,
+							"y": 50,
+							"z": 0
+						},
+						"ProcessCovidData01": {
+							"x": 351,
+							"y": 158,
+							"z": 0
+						}
+					}
+				}
+			},
+			"name": "covid19-tracker",
+			"resources": {
+				"CovidData01": {
+					"id": "CovidData01",
+					"key": "pk",
+					"name": "covid-data",
+					"tableName": "covid-data",
+					"throughput": {
+						"readUnits": 1,
+						"writeUnits": 1
+					},
+					"type": "resource.table.simple"
+				},
+				"DataPollSchedule01": {
+					"id": "DataPollSchedule01",
+					"name": "data-poll-schedule",
+					"rate": {
+						"amount": 1,
+						"unit": "days"
+					},
+					"type": "resource.scheduler"
+				},
+				"Notifications01": {
+					"displayName": "notifications",
+					"id": "Notifications01",
+					"name": "notifications",
+					"topicName": "notifications",
+					"type": "resource.notification-topic"
+				},
+				"ProcessCovidData01": {
+					"entryPoint": "functions/processCovidData.handler",
+					"environment": {
+						"variables": {
+							"API_URL": "https://api.apify.com/v2/key-value-stores/tVaYRsPHLjNdNBu7S/records/LATEST?disableRedirect=true",
+							"COUNTRY": "United States",
+							"NOTIFY_WHEN_OVER": "1000"
+						}
+					},
+					"id": "ProcessCovidData01",
+					"layers": [],
+					"memory": 512,
+					"name": "process-covid-data",
+					"reservedConcurrency": 1,
+					"runtime": "nodejs12.x",
+					"timeout": 6,
+					"type": "resource.compute.function"
+				}
+			},
+			"unsafe": false,
+			"version": "2019-10-24"
+		}
+	]
 }

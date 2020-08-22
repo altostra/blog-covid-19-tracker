@@ -1,12 +1,11 @@
 {
+  "private": true,
   "name": "covid19-tracker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "description": "Source code for the blog post on the topic.",
+  "author": "Altostra, Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2"
+  }
 }
